@@ -4,7 +4,6 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 
-
 public class Home implements ActionListener {
 	
 	JFrame f = new JFrame();
