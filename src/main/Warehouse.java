@@ -5,13 +5,13 @@ import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 
-public class Home implements ActionListener {
+public class Warehouse implements ActionListener {
 	
 	JFrame frame = new JFrame();
 	
-	Home() {
+	Warehouse() {
 		
-		frame.setTitle("Home");
+		frame.setTitle("Warehouse");
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setSize(1280, 720);
 		frame.getContentPane().setBackground(Color.magenta);
@@ -80,11 +80,10 @@ public class Home implements ActionListener {
 
 	public static void main(String[] args) {
 		
-		Home obj = new Home();
+		Warehouse obj = new Warehouse();
 		obj.show();
 
 	}
-	
 	
 	@Override
 	public void actionPerformed(ActionEvent e) {
