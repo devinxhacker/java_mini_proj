@@ -1,19 +1,15 @@
-package main;
+package main.ui.components;
 
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Dimension;
+import java.awt.*;
 
-import javax.swing.BorderFactory;
-import javax.swing.Box;
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JPanel;
-import javax.swing.border.EmptyBorder;
+import javax.swing.*;
+import javax.swing.border.*;
+
+import main.ui.pages.*;
 
 public class Header extends JPanel {
     
-    Header(JFrame currentFrame) {
+    public Header(JFrame currentFrame) {
     	
 		this.setBackground(Color.cyan);
 		this.setPreferredSize(new Dimension(1280, 40));

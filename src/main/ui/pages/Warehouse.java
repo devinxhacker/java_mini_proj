@@ -1,28 +1,18 @@
-package main;
+package main.ui.pages;
 
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Container;
-import java.awt.Dimension;
-import java.awt.GridLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.*;
+import java.awt.event.*;
 
-import javax.swing.BorderFactory;
-import javax.swing.Box;
-import javax.swing.BoxLayout;
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JProgressBar;
-import javax.swing.border.EmptyBorder;
+import javax.swing.*;
+import javax.swing.border.*;
+
+import main.ui.components.Header;
 
 public class Warehouse implements ActionListener {
 	
 	JFrame frame = new JFrame();
 	
-	Warehouse() {
+	public Warehouse() {
 		
 		frame.setTitle("Warehouse");
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
