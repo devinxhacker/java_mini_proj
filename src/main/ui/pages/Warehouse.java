@@ -6,11 +6,14 @@ import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.border.*;
 
+import main.api.*;
+import main.api.ApiSchema.*;
 import main.ui.components.Header;
 
-public class Warehouse implements ActionListener {
+public class Warehouse implements ActionListener, ComponentListener {
 	
-	JFrame frame = new JFrame();
+	private static JFrame frame = new JFrame();
+	private static JPanel compartments = new JPanel();
 	
 	public Warehouse() {
 		
@@ -53,6 +56,14 @@ public class Warehouse implements ActionListener {
 		buttonWrapper.setBorder(new EmptyBorder(10, 0, 0, 40));
 		
 		JButton refreshButton = new JButton("Refresh");
+		refreshButton.addActionListener(e -> {
+			compartments.removeAll();
+			for (int i = 0; i < 5; i++)
+				compartments.add(createCompartment("Refreshing...", 0, 0));
+			compartments.revalidate();
+			compartments.repaint();
+			fetchData();
+		});
 		buttonWrapper.add(refreshButton);
 		topPanel.add(buttonWrapper, BorderLayout.EAST);
 		
@@ -65,29 +76,21 @@ public class Warehouse implements ActionListener {
         JPanel wrapperCompartment = new JPanel();
         wrapperCompartment.setBackground(Color.yellow);
         
-		JPanel compartments = new JPanel();
 		compartments.setLayout(new GridLayout(0, 3, 20, 20));
 		compartments.setPreferredSize(new Dimension(1080, 550));
 		compartments.setBackground(Color.yellow);
 		compartments.setBorder(BorderFactory.createLineBorder(Color.black, 1, true));
-		
-		
-		// individual card
-		compartments.add(createCompartment("Electronics", 500, 221));
-		compartments.add(createCompartment("Appliances", 500, 90));
-		compartments.add(createCompartment("Furniture", 500, 103));
-		compartments.add(createCompartment("Clothing", 500, 290));
-		compartments.add(createCompartment("Books", 500, 320));
-
 	
 		wrapperCompartment.add(compartments);
 		content.add(wrapperCompartment, BorderLayout.SOUTH);
 		// compartments end here
 		
 		frame.add(content, BorderLayout.CENTER);
+		
+		frame.addComponentListener(this);
 	}
 	
-	public JPanel createCompartment(String compartmentName, int totalCapacity, int spaceUsed) {
+	public static JPanel createCompartment(String compartmentName, int totalCapacity, int spaceUsed) {
 		
 		JPanel card = new JPanel();
 		card.setBackground(Color.pink);
@@ -136,6 +139,42 @@ public class Warehouse implements ActionListener {
 		return card;
 	}
 	
+	private static void fetchData() {
+		
+		SwingWorker<WarehouseApiResponse, Void> worker = new SwingWorker<WarehouseApiResponse, Void>() {
+			
+			@Override
+			protected WarehouseApiResponse doInBackground() throws Exception {
+				
+				ApiService service = new ApiService();
+				WarehouseApiResponse response = service.fetchAllCompartments();
+				return response;
+			}
+			
+			@Override
+			protected void done() {
+				
+				try {
+					WarehouseApiResponse obj = (WarehouseApiResponse) get();
+					if (obj.success) {
+						compartments.removeAll();
+
+						ApiSchema.CategoryData[] compartmentsArray = obj.data;
+						for (int i = 0; i < compartmentsArray.length; i++)
+							compartments.add(createCompartment(compartmentsArray[i].name, compartmentsArray[i].maxCapacity, compartmentsArray[i].currentCapacity));
+
+						compartments.revalidate();
+						compartments.repaint();
+					}
+				} catch (Exception e) {
+					System.err.println("lets cry about this");
+				}
+			}
+		};
+		
+		worker.execute();
+	}
+	
 	public void show() {
 		frame.setVisible(true);
 	}
@@ -144,11 +183,41 @@ public class Warehouse implements ActionListener {
 		
 		Warehouse obj = new Warehouse();
 		obj.show();
-
 	}
 	
 	@Override
 	public void actionPerformed(ActionEvent e) {
+		// TODO Auto-generated method stub
+	}
+
+	@Override
+	public void componentResized(ComponentEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void componentMoved(ComponentEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void componentShown(ComponentEvent e) {
+
+		compartments.removeAll();
+        for (int i = 0; i < 5; i++) {
+             compartments.add(createCompartment("Fetching...", 0, 0));
+        }
+        compartments.revalidate();
+        compartments.repaint();
+        
+        fetchData(); 
+	}
+
+	@Override
+	public void componentHidden(ComponentEvent e) {
+		// TODO Auto-generated method stub
 		
 	}
 

@@ -7,59 +7,59 @@ public class ApiSchema {
 	// transactions
     public static class TransactionApiResponse {
         
-    	boolean success;
-        TransactionData[] data;
+    	public boolean success;
+        public TransactionData[] data;
     }
 
     public static class TransactionData {
         
-    	int id, itemId, quantity;
-        String itemName, categoryName, type;
-        Date date;
+    	public int id, itemId, quantity;
+        public String itemName, categoryName, type;
+        public Date date;
     }
 
     // warehouse
     public static class WarehouseApiResponse {
         
-    	boolean success;
-        CategoryData[] data;
+    	public boolean success;
+        public CategoryData[] data;
     }
 
     public static class CategoryData {
     	
-        int id, maxCapacity, currentCapacity, availableSpace, utilizationPercentage;
-        String name;
-        ItemData[] items;
+        public int id, maxCapacity, currentCapacity, availableSpace, utilizationPercentage;
+        public String name;
+        public ItemData[] items;
     }
 
     public static class ItemData {
         
-    	int id, maxQuantity, currentQuantity, availableSpace;
-        String name;
+    	public int id, maxQuantity, currentQuantity, availableSpace;
+        public String name;
     }
     
     // send/receive
     public static class ItemsApiResponse {
     
-    	boolean success;
-    	ItemsData[] data;
+    	public boolean success;
+    	public ItemsData[] data;
     }
     
     public static class ItemsData {
     	
-    	int id, categoryId, maxQuantity, currentQuantity, availableSpace;
-    	String name, categoryName;
+    	public int id, categoryId, maxQuantity, currentQuantity, availableSpace;
+    	public String name, categoryName;
     }
 
     public static class SendReceivePayload {
     	
-        int itemId, quantity;
+        public int itemId, quantity;
     }
 
     public static class PostResponse {
         
-        boolean success;
-        String message;
+        public boolean success;
+        public String message;
     }
 
 } 
