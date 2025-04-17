@@ -59,7 +59,7 @@ public class Warehouse implements ActionListener, ComponentListener {
 		refreshButton.addActionListener(e -> {
 			compartments.removeAll();
 			for (int i = 0; i < 5; i++)
-				compartments.add(createCompartment("Refreshing...", 0, 0));
+				compartments.add(createCompartment("Refreshing...", 0, 0, null));
 			compartments.revalidate();
 			compartments.repaint();
 			fetchData();
@@ -90,7 +90,7 @@ public class Warehouse implements ActionListener, ComponentListener {
 		frame.addComponentListener(this);
 	}
 	
-	public static JPanel createCompartment(String compartmentName, int totalCapacity, int spaceUsed) {
+	public static JPanel createCompartment(String compartmentName, int totalCapacity, int spaceUsed, CategoryData data) {
 		
 		JPanel card = new JPanel();
 		card.setBackground(Color.pink);
@@ -134,6 +134,11 @@ public class Warehouse implements ActionListener, ComponentListener {
 		
 		JButton detailsButton = new JButton("View details");
 		detailsButton.setAlignmentX(Container.CENTER_ALIGNMENT);
+		detailsButton.addActionListener(e -> {
+		    frame.dispose();
+		    CompartmentDetail detailPage = new CompartmentDetail(data);
+		    detailPage.show();
+		});
 		card.add(detailsButton);
 		
 		return card;
@@ -160,8 +165,14 @@ public class Warehouse implements ActionListener, ComponentListener {
 						compartments.removeAll();
 
 						ApiSchema.CategoryData[] compartmentsArray = obj.data;
-						for (int i = 0; i < compartmentsArray.length; i++)
-							compartments.add(createCompartment(compartmentsArray[i].name, compartmentsArray[i].maxCapacity, compartmentsArray[i].currentCapacity));
+						for (int i = 0; i < compartmentsArray.length; i++) {
+							compartments.add(createCompartment(
+							    compartmentsArray[i].name, 
+							    compartmentsArray[i].maxCapacity, 
+							    compartmentsArray[i].currentCapacity,
+							    compartmentsArray[i]
+							));
+						}
 
 						compartments.revalidate();
 						compartments.repaint();
@@ -207,7 +218,7 @@ public class Warehouse implements ActionListener, ComponentListener {
 
 		compartments.removeAll();
         for (int i = 0; i < 5; i++) {
-             compartments.add(createCompartment("Fetching...", 0, 0));
+             compartments.add(createCompartment("Fetching...", 0, 0, null));
         }
         compartments.revalidate();
         compartments.repaint();
