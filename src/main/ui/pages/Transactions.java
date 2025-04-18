@@ -6,14 +6,21 @@ import javax.swing.*;
 import javax.swing.border.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.text.SimpleDateFormat;
 
 import main.ui.components.Header;
+import main.api.ApiService;
+import main.api.ApiSchema;
+import main.api.ApiSchema.TransactionApiResponse;
+import main.api.ApiSchema.TransactionData;
 
 public class Transactions implements ActionListener {
 
 	JFrame frame = new JFrame();
 	JPanel contentPanel;
 	JButton refreshButton;
+	JPanel transactionList;
+	JScrollPane scrollPane;
 
 	public Transactions() {
 		frame.setTitle("Transactions");
@@ -55,20 +62,27 @@ public class Transactions implements ActionListener {
 		contentPanel.add(titlePanel, BorderLayout.NORTH);
 
 		// Transaction List Panel
-		JPanel transactionList = new JPanel();
+		transactionList = new JPanel();
 		transactionList.setLayout(new BoxLayout(transactionList, BoxLayout.Y_AXIS));
 		transactionList.setOpaque(false);
 		transactionList.setBorder(new EmptyBorder(10, 40, 10, 40)); // 40px side spacing
 
-		addSampleTransactions(transactionList); // mock data
+		// Add loading indicator
+		JLabel loadingLabel = new JLabel("Loading transactions...");
+		loadingLabel.setFont(new Font("SansSerif", Font.PLAIN, 16));
+		loadingLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+		transactionList.add(loadingLabel);
 
-		JScrollPane scrollPane = new JScrollPane(transactionList);
+		scrollPane = new JScrollPane(transactionList);
 		scrollPane.setBorder(null);
 		scrollPane.getViewport().setBackground(new Color(245, 247, 250));
 		scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
 
 		contentPanel.add(scrollPane, BorderLayout.CENTER);
 		frame.add(contentPanel, BorderLayout.CENTER);
+		
+		// Fetch data when the page is loaded
+		fetchTransactions();
 	}
 
 	public void show() {
@@ -83,70 +97,115 @@ public class Transactions implements ActionListener {
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		if (e.getSource() == refreshButton) {
-			JOptionPane.showMessageDialog(frame, "Refreshing data (backend hook needed)");
+			fetchTransactions();
 		}
 	}
-
-	private void addSampleTransactions(JPanel panel) {
-		List<TransactionData> transactions = new ArrayList<>();
-		transactions.add(new TransactionData("RECEIVE", "Smartphone", 2, 5, "4/16/2025, 10:48:30 PM"));
-		transactions.add(new TransactionData("SEND", "Camera", 1, 3, "4/16/2025, 10:48:30 PM"));
-		transactions.add(new TransactionData("RECEIVE", "Laptop", 7, 10, "4/17/2025, 9:15:00 AM"));
-
-		for (TransactionData t : transactions) {
-			JPanel card = new JPanel();
-			card.setLayout(new BorderLayout());
-			card.setMaximumSize(new Dimension(1000, 120));
-			card.setBorder(new CompoundBorder(new EmptyBorder(10, 20, 10, 20), new LineBorder(Color.LIGHT_GRAY)));
-			card.setBackground(t.type.equals("RECEIVE") ? new Color(235, 255, 235) : new Color(255, 235, 235));
-			card.setAlignmentX(Component.CENTER_ALIGNMENT);
-
-			JLabel typeLabel = new JLabel(t.type);
-			typeLabel.setFont(new Font("SansSerif", Font.BOLD, 18));
-			typeLabel.setForeground(t.type.equals("RECEIVE") ? new Color(0, 128, 0) : new Color(200, 0, 0));
-
-			JLabel timestamp = new JLabel(t.timestamp);
-			timestamp.setFont(new Font("SansSerif", Font.PLAIN, 14));
-			timestamp.setForeground(Color.DARK_GRAY);
-
-			JPanel top = new JPanel(new BorderLayout());
-			top.setOpaque(false);
-			top.add(typeLabel, BorderLayout.WEST);
-			top.add(timestamp, BorderLayout.EAST);
-
-			JLabel item = new JLabel("Item: " + t.itemName);
-			JLabel id = new JLabel("Item ID: " + t.itemId);
-			JLabel qty = new JLabel("Quantity: " + t.quantity);
-
-			Font infoFont = new Font("SansSerif", Font.PLAIN, 16);
-			item.setFont(infoFont);
-			id.setFont(infoFont);
-			qty.setFont(infoFont);
-
-			JPanel details = new JPanel(new FlowLayout(FlowLayout.LEFT, 40, 10));
-			details.setOpaque(false);
-			details.add(item);
-			details.add(id);
-			details.add(qty);
-
-			card.add(top, BorderLayout.NORTH);
-			card.add(details, BorderLayout.CENTER);
-
-			panel.add(card);
-			panel.add(Box.createVerticalStrut(15)); // spacing between cards
-		}
+	
+	private void fetchTransactions() {
+		// Show loading indicator
+		transactionList.removeAll();
+		JLabel loadingLabel = new JLabel("Loading transactions...");
+		loadingLabel.setFont(new Font("SansSerif", Font.PLAIN, 16));
+		loadingLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+		transactionList.add(loadingLabel);
+		transactionList.revalidate();
+		transactionList.repaint();
+		
+		// Use SwingWorker to fetch data in background
+		SwingWorker<TransactionApiResponse, Void> worker = new SwingWorker<TransactionApiResponse, Void>() {
+			@Override
+			protected TransactionApiResponse doInBackground() throws Exception {
+				ApiService service = new ApiService();
+				TransactionApiResponse response = service.fetchAllTransactions();
+				return response;
+			}
+			
+			@Override
+			protected void done() {
+				try {
+					TransactionApiResponse response = get();
+					if (response != null && response.success) {
+						displayTransactions(response.data);
+					} else {
+						// Show error message
+						transactionList.removeAll();
+						JLabel errorLabel = new JLabel("Failed to load transactions. Please try again.");
+						errorLabel.setFont(new Font("SansSerif", Font.PLAIN, 16));
+						errorLabel.setForeground(Color.RED);
+						errorLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+						transactionList.add(errorLabel);
+						transactionList.revalidate();
+						transactionList.repaint();
+					}
+				} catch (Exception e) {
+					System.err.println("Error fetching transactions: " + e.getMessage());
+					// Show error message
+					transactionList.removeAll();
+					JLabel errorLabel = new JLabel("Error loading transactions. Please try again.");
+					errorLabel.setFont(new Font("SansSerif", Font.PLAIN, 16));
+					errorLabel.setForeground(Color.RED);
+					errorLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+					transactionList.add(errorLabel);
+					transactionList.revalidate();
+					transactionList.repaint();
+				}
+			}
+		};
+		
+		worker.execute();
 	}
+	
+	private void displayTransactions(TransactionData[] transactions) {
+		transactionList.removeAll();
+		
+		if (transactions == null || transactions.length == 0) {
+			JLabel noDataLabel = new JLabel("No transactions found.");
+			noDataLabel.setFont(new Font("SansSerif", Font.PLAIN, 16));
+			noDataLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+			transactionList.add(noDataLabel);
+		} else {
+			SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy, hh:mm:ss a");
+			
+			for (TransactionData t : transactions) {
+				JPanel card = new JPanel();
+				card.setLayout(new BorderLayout());
+				card.setMaximumSize(new Dimension(1000, 120));
+				card.setBorder(new CompoundBorder(new EmptyBorder(10, 20, 10, 20), new LineBorder(Color.LIGHT_GRAY)));
+				card.setBackground(t.type.equals("RECEIVE") ? new Color(235, 255, 235) : new Color(255, 235, 235));
+				card.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-	class TransactionData {
-		String type, itemName, timestamp;
-		int itemId, quantity;
+				JLabel typeLabel = new JLabel(t.type);
+				typeLabel.setFont(new Font("SansSerif", Font.BOLD, 18));
+				typeLabel.setForeground(t.type.equals("RECEIVE") ? new Color(0, 128, 0) : new Color(200, 0, 0));
 
-		TransactionData(String type, String itemName, int itemId, int quantity, String timestamp) {
-			this.type = type;
-			this.itemName = itemName;
-			this.itemId = itemId;
-			this.quantity = quantity;
-			this.timestamp = timestamp;
+				JPanel top = new JPanel(new BorderLayout());
+				top.setOpaque(false);
+				top.add(typeLabel, BorderLayout.WEST);
+
+				JLabel item = new JLabel("Item: " + t.itemName);
+				JLabel id = new JLabel("Item ID: " + t.itemId);
+				JLabel qty = new JLabel("Quantity: " + t.quantity);
+
+				Font infoFont = new Font("SansSerif", Font.PLAIN, 16);
+				item.setFont(infoFont);
+				id.setFont(infoFont);
+				qty.setFont(infoFont);
+
+				JPanel details = new JPanel(new FlowLayout(FlowLayout.LEFT, 40, 10));
+				details.setOpaque(false);
+				details.add(item);
+				details.add(id);
+				details.add(qty);
+
+				card.add(top, BorderLayout.NORTH);
+				card.add(details, BorderLayout.CENTER);
+
+				transactionList.add(card);
+				transactionList.add(Box.createVerticalStrut(15)); // spacing between cards
+			}
 		}
+		
+		transactionList.revalidate();
+		transactionList.repaint();
 	}
 }
