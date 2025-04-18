@@ -12,7 +12,7 @@ import main.ui.components.Header;
 
 public class Warehouse implements ActionListener, ComponentListener {
 	
-	private static JFrame frame = new JFrame();
+	private JFrame frame = new JFrame();
 	private static JPanel compartments = new JPanel();
 	
 	public Warehouse() {
@@ -90,7 +90,7 @@ public class Warehouse implements ActionListener, ComponentListener {
 		frame.addComponentListener(this);
 	}
 	
-	public static JPanel createCompartment(String compartmentName, int totalCapacity, int spaceUsed, CategoryData data) {
+	private JPanel createCompartment(String compartmentName, int totalCapacity, int spaceUsed, CategoryData data) {
 		
 		JPanel card = new JPanel();
 		card.setBackground(Color.pink);
@@ -135,7 +135,7 @@ public class Warehouse implements ActionListener, ComponentListener {
 		JButton detailsButton = new JButton("View details");
 		detailsButton.setAlignmentX(Container.CENTER_ALIGNMENT);
 		detailsButton.addActionListener(e -> {
-		    frame.dispose();
+		    this.frame.dispose();
 		    CompartmentDetail detailPage = new CompartmentDetail(data);
 		    detailPage.show();
 		});
@@ -144,7 +144,7 @@ public class Warehouse implements ActionListener, ComponentListener {
 		return card;
 	}
 	
-	private static void fetchData() {
+	private void fetchData() {
 		
 		SwingWorker<WarehouseApiResponse, Void> worker = new SwingWorker<WarehouseApiResponse, Void>() {
 			
