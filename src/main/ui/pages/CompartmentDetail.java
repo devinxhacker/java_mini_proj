@@ -10,7 +10,7 @@ import main.ui.components.Header;
 
 public class CompartmentDetail implements ActionListener {
     
-    private static JFrame frame = new JFrame();
+    private JFrame frame = new JFrame();
     
     public CompartmentDetail(CategoryData data) {
         

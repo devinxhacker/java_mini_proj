@@ -4,15 +4,10 @@ import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.border.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.text.SimpleDateFormat;
 
 import main.ui.components.Header;
 import main.api.ApiService;
-import main.api.ApiSchema;
-import main.api.ApiSchema.TransactionApiResponse;
-import main.api.ApiSchema.TransactionData;
+import main.api.ApiSchema.*;
 
 public class Transactions implements ActionListener {
 
@@ -36,16 +31,13 @@ public class Transactions implements ActionListener {
 		contentPanel = new JPanel(new BorderLayout());
 		contentPanel.setBackground(new Color(245, 247, 250));
 
-		// Title + Refresh Panel
-		JPanel titlePanel = new JPanel(new BorderLayout(10, 10)); // spacing between items
-		titlePanel.setBorder(new EmptyBorder(20, 40, 20, 40)); // padding around panel
+		JPanel titlePanel = new JPanel(new BorderLayout(10, 10));
+		titlePanel.setBorder(new EmptyBorder(20, 40, 20, 40));
 		titlePanel.setBackground(new Color(245, 247, 250));
 
-		// Title centered
 		JLabel title = new JLabel("Transaction History", SwingConstants.CENTER);
 		title.setFont(new Font("Serif", Font.BOLD, 28));
 
-		// Refresh button aligned right
 		refreshButton = new JButton("🔄 Refresh Data");
 		refreshButton.setFocusPainted(false);
 		refreshButton.setBackground(new Color(235, 240, 255));
@@ -55,19 +47,18 @@ public class Transactions implements ActionListener {
 		refreshButton.setPreferredSize(new Dimension(160, 40));
 		refreshButton.addActionListener(this);
 
+		titlePanel.add(Box.createHorizontalStrut(160), BorderLayout.WEST);
 		titlePanel.add(title, BorderLayout.CENTER);
 		titlePanel.add(refreshButton, BorderLayout.EAST);
 
 
 		contentPanel.add(titlePanel, BorderLayout.NORTH);
 
-		// Transaction List Panel
 		transactionList = new JPanel();
 		transactionList.setLayout(new BoxLayout(transactionList, BoxLayout.Y_AXIS));
 		transactionList.setOpaque(false);
-		transactionList.setBorder(new EmptyBorder(10, 40, 10, 40)); // 40px side spacing
+		transactionList.setBorder(new EmptyBorder(10, 40, 10, 40));
 
-		// Add loading indicator
 		JLabel loadingLabel = new JLabel("Loading transactions...");
 		loadingLabel.setFont(new Font("SansSerif", Font.PLAIN, 16));
 		loadingLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -81,7 +72,6 @@ public class Transactions implements ActionListener {
 		contentPanel.add(scrollPane, BorderLayout.CENTER);
 		frame.add(contentPanel, BorderLayout.CENTER);
 		
-		// Fetch data when the page is loaded
 		fetchTransactions();
 	}
 
@@ -102,7 +92,7 @@ public class Transactions implements ActionListener {
 	}
 	
 	private void fetchTransactions() {
-		// Show loading indicator
+
 		transactionList.removeAll();
 		JLabel loadingLabel = new JLabel("Loading transactions...");
 		loadingLabel.setFont(new Font("SansSerif", Font.PLAIN, 16));
@@ -111,7 +101,6 @@ public class Transactions implements ActionListener {
 		transactionList.revalidate();
 		transactionList.repaint();
 		
-		// Use SwingWorker to fetch data in background
 		SwingWorker<TransactionApiResponse, Void> worker = new SwingWorker<TransactionApiResponse, Void>() {
 			@Override
 			protected TransactionApiResponse doInBackground() throws Exception {
@@ -127,7 +116,6 @@ public class Transactions implements ActionListener {
 					if (response != null && response.success) {
 						displayTransactions(response.data);
 					} else {
-						// Show error message
 						transactionList.removeAll();
 						JLabel errorLabel = new JLabel("Failed to load transactions. Please try again.");
 						errorLabel.setFont(new Font("SansSerif", Font.PLAIN, 16));
@@ -139,7 +127,6 @@ public class Transactions implements ActionListener {
 					}
 				} catch (Exception e) {
 					System.err.println("Error fetching transactions: " + e.getMessage());
-					// Show error message
 					transactionList.removeAll();
 					JLabel errorLabel = new JLabel("Error loading transactions. Please try again.");
 					errorLabel.setFont(new Font("SansSerif", Font.PLAIN, 16));
@@ -164,7 +151,6 @@ public class Transactions implements ActionListener {
 			noDataLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 			transactionList.add(noDataLabel);
 		} else {
-			SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy, hh:mm:ss a");
 			
 			for (TransactionData t : transactions) {
 				JPanel card = new JPanel();
@@ -201,7 +187,7 @@ public class Transactions implements ActionListener {
 				card.add(details, BorderLayout.CENTER);
 
 				transactionList.add(card);
-				transactionList.add(Box.createVerticalStrut(15)); // spacing between cards
+				transactionList.add(Box.createVerticalStrut(15));
 			}
 		}
 		
