@@ -23,7 +23,7 @@ public class Transactions implements ActionListener {
 	JScrollPane scrollPane;
 
 	public Transactions() {
-		frame.setTitle("Transactions");
+		frame.setTitle("Transactions ");
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setSize(1280, 720);
 		frame.getContentPane().setBackground(new Color(245, 247, 250));
@@ -37,15 +37,15 @@ public class Transactions implements ActionListener {
 		contentPanel.setBackground(new Color(245, 247, 250));
 
 		// Title + Refresh Panel
-		JPanel titlePanel = new JPanel(null); // absolute positioning
-		titlePanel.setPreferredSize(new Dimension(1280, 80));
+		JPanel titlePanel = new JPanel(new BorderLayout(10, 10)); // spacing between items
+		titlePanel.setBorder(new EmptyBorder(20, 40, 20, 40)); // padding around panel
 		titlePanel.setBackground(new Color(245, 247, 250));
 
-		JLabel title = new JLabel("Transaction History");
+		// Title centered
+		JLabel title = new JLabel("Transaction History", SwingConstants.CENTER);
 		title.setFont(new Font("Serif", Font.BOLD, 28));
-		Dimension titleSize = title.getPreferredSize();
-		title.setBounds((1280 - titleSize.width) / 2, 20, titleSize.width, titleSize.height);
 
+		// Refresh button aligned right
 		refreshButton = new JButton("🔄 Refresh Data");
 		refreshButton.setFocusPainted(false);
 		refreshButton.setBackground(new Color(235, 240, 255));
@@ -53,11 +53,11 @@ public class Transactions implements ActionListener {
 		refreshButton.setFont(new Font("SansSerif", Font.PLAIN, 16));
 		refreshButton.setBorder(new LineBorder(new Color(43, 85, 222), 1));
 		refreshButton.setPreferredSize(new Dimension(160, 40));
-		refreshButton.setBounds(1280 - 160 - 40, 20, 160, 40); // aligned with right edge (40px padding)
 		refreshButton.addActionListener(this);
 
-		titlePanel.add(title);
-		titlePanel.add(refreshButton);
+		titlePanel.add(title, BorderLayout.CENTER);
+		titlePanel.add(refreshButton, BorderLayout.EAST);
+
 
 		contentPanel.add(titlePanel, BorderLayout.NORTH);
 
