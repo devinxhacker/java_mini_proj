@@ -105,6 +105,11 @@ public class SendReceive implements ActionListener {
 	}
 
 	private void loadItems() {
+
+        comboBox.removeAllItems();
+        comboBox.addItem("Loading items...");
+        comboBox.setEnabled(false);
+		
 		SwingWorker<ItemsApiResponse, Void> worker = new SwingWorker<ItemsApiResponse, Void>() {
 			@Override
 			protected ItemsApiResponse doInBackground() throws Exception {
@@ -123,10 +128,16 @@ public class SendReceive implements ActionListener {
 							itemsDataList.add(item);
 							comboBox.addItem(item.name);
 						}
+						comboBox.setEnabled(true);
 					} else {
+						comboBox.removeAllItems();
+						comboBox.addItem("Failed to load items");
 						JOptionPane.showMessageDialog(frame, "Failed to load items.", "Error", JOptionPane.ERROR_MESSAGE);
 					}
 				} catch (Exception e) {
+					comboBox.removeAllItems();
+					comboBox.addItem("Error loading items");
+					comboBox.setEnabled(true);
 					JOptionPane.showMessageDialog(frame, "Error: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
 				}
 			}
